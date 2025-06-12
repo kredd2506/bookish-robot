@@ -1,0 +1,60 @@
+# kubernetes/03-flask-deployment.yaml
+# Defines a Kubernetes Deployment for the Flask application.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flask-app-deployment
+  namespace: gsoc
+  labels:
+    app: flask-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flask-app
+  template:
+    metadata:
+      labels:
+        app: flask-app
+    spec:
+      serviceAccountName: flask-app-sa
+      containers:
+        - name: flask-app
+          image: redd25/flask-k8s-app:latest # <--- CHANGE THIS LINE!
+          ports:
+            - containerPort: 5000
+          env:
+            - name: POSTGRES_HOST
+              value: my-postgres-cluster
+            - name: POSTGRES_DB
+              value: mydatabase
+            - name: POSTGRES_USER
+              value: myapp
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: myapp.my-postgres-cluster.credentials.postgresql.acid.zalan.do
+                  key: password
+            - name: KUBERNETES_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 5000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 5000
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"

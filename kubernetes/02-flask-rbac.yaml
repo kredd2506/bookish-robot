@@ -1,0 +1,39 @@
+# kubernetes/02-flask-rbac.yaml
+# Defines Role-Based Access Control (RBAC) for the Flask application.
+# This grants the Flask app permissions to list pods and deployments in its namespace,
+# which is required for the '/k8s-info' endpoint.
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: flask-app-sa
+  namespace: gsoc # ServiceAccount will be in the same namespace as the app
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: pod-and-deployment-reader
+  namespace: my-flask-project # Role is scoped to this specific namespace
+rules:
+  - apiGroups: [""] # "" indicates the core API group (for Pods)
+    resources: ["pods"]
+    verbs: ["get", "list"] # Allow reading pod information
+  - apiGroups: ["apps"] # API group for Deployments
+    resources: ["deployments"]
+    verbs: ["get", "list"] # Allow reading deployment information
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: flask-app-read-access
+  namespace: gsoc
+subjects:
+  - kind: ServiceAccount
+    name: flask-app-sa
+    namespace: gsoc
+roleRef:
+  kind: Role
+  name: pod-and-deployment-reader
+  apiGroup: rbac.authorization.k8s.io

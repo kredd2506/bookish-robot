@@ -1,0 +1,40 @@
+# kubernetes/01-postgres-cluster.yaml
+# Defines a PostgreSQL cluster using the Zalando Postgres Operator's Custom Resource.
+# This will deploy your PostgreSQL database within the 'gsoc' namespace.
+apiVersion: "acid.zalan.do/v1"
+kind: "postgresql"
+metadata:
+  name: "my-postgres-cluster" # Name of your PostgreSQL cluster
+  namespace: gsoc # <--- THIS MUST BE 'gsoc'
+spec:
+  teamId: "my-team" # A logical team ID for the operator
+  volume:
+    size: 10Gi # Storage size per instance. Adjust as needed.
+    # If your cluster has a specific StorageClass like 'linstor-igrok' as mentioned in your docs:
+    # storageClass: linstor-igrok # Uncomment and use if applicable on NRP Nautilus
+  numberOfInstances: 1 # Start with 1 instance for a small project. Can scale up.
+  users:
+    # Define a database user for your Flask application
+    myapp:  # User for your Flask app to connect with
+      - superuser # Grants superuser privileges (useful for initial setup)
+      - createdb  # Allows the user to create databases
+  databases:
+    mydatabase: myapp  # database name: owner. Your Flask app will use 'mydatabase'
+  postgresql:
+    version: "14" # PostgreSQL version. Make sure this version is supported by the operator.
+  resources:
+    requests: # Resource requests for each PostgreSQL instance
+      cpu: "250m" # 0.25 CPU core
+      memory: "256Mi" # 256 Megabytes
+    limits: # Resource limits for each PostgreSQL instance
+      cpu: "500m" # 0.5 CPU core
+      memory: "512Mi" # 512 Megabytes
+  # Example for Linstor storage affinity, if needed and applicable on NRP Nautilus:
+  # nodeAffinity:
+  #   requiredDuringSchedulingIgnoredDuringExecution:
+  #     nodeSelectorTerms:
+  #     - matchExpressions:
+  #       - key: nautilus.io/linstor
+  #         operator: In
+  #         values:
+  #         - "true"

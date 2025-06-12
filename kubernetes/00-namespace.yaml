@@ -1,0 +1,9 @@
+# kubernetes/00-namespace.yaml
+# Confirms the namespace for your PostgreSQL and Flask application.
+# All resources will be deployed into the 'gsoc' namespace.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: gsoc # Your assigned namespace on NRP Nautilus
+  labels:
+    project: my-flask-k8s-project

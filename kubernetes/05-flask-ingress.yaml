@@ -1,0 +1,24 @@
+# kubernetes/05-flask-ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: flask-app-ingress
+  namespace: gsoc
+  annotations:
+    kubernetes.io/ingress.class: "nginx" # <--- ADD THIS LINE
+    # You might also need the haproxy annotation mentioned before if they use HAProxy:
+    # haproxy.router.zalando.org/backend-config-snippet: |
+    #   timeout connect 5s
+    #   timeout server 50s
+spec:
+  rules:
+    - host: gsoc-flask-app.nrp-nautilus.io # Ensure this is what you want to use
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: flask-app-service
+                port:
+                  number: 80

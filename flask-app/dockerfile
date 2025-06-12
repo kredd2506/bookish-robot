@@ -1,0 +1,26 @@
+
+# flask-app/Dockerfile
+# This Dockerfile builds the image for your Flask application.
+# It installs necessary dependencies and sets up the Flask app.
+
+# Use a slim Python base image
+FROM python:3.9-slim-buster
+
+# Set the working directory in the container
+WORKDIR /app
+
+# Copy the requirements file and install dependencies
+# This step is optimized for Docker caching: if requirements.txt doesn't change,
+# this layer can be reused.
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the Flask application code
+COPY app.py .
+
+# Expose the port Flask will listen on
+EXPOSE 5000
+
+# Command to run the Flask application
+CMD ["python", "app.py"]
+

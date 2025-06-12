@@ -1,0 +1,4 @@
+# flask-app/requirements.txt
+Flask==2.3.3
+psycopg2-binary==2.9.9
+kubernetes==29.0.0 # Kubernetes client library
